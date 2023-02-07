@@ -95,6 +95,8 @@ class MovePath {
 public:
 	vector<DeltaPath> paths;
 	MovePath(string fileName);
+	//初始化
+	void Init(string fileName);
 	MovePath() {}
 };
 
@@ -143,7 +145,7 @@ OverlapInfo CalcOverlap(const MovePath& movePath, const unsigned& pathIndex, con
 /// <param name="movePath">移动终端的移动轨迹</param>
 /// <param name="pseudoPath">伪基站的移动轨迹</param>
 /// <param name="deltaTime">计算距离精度（米）</param>
-/// <param name="pathIndex">计算哪一段（12、10）</param>
+/// <param name="pathIndex">计算哪一段（11、9）</param>
 /// <param name="deltaPos">计算距离精度（米）</param>
 /// <returns>连接情况</returns>
 vector<ConnectInfo> PseudoConnection(const MovePath& movePath, const MovePath& pseudoPath, const unsigned pathIndex, double deltaPos = 0.1);
@@ -152,6 +154,8 @@ struct ConnectFirst {
 	Station station;
 	Point2 A1;
 	Point2 A2;
+	Time T1;
+	Time T2;
 };
 
 /// <summary>

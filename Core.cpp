@@ -2,7 +2,7 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm>
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #include <chrono>
@@ -84,6 +84,57 @@ Station FindBestStation(const QuadTree& tree,const Point2& position) {
 #endif // DEBUG
 
 	return ret;
+}
+
+void MovePath::Init(string fileName) {
+	paths.clear();
+	//伪基站轨迹
+	bool pseudo = false;
+	ifstream ifs(fileName);
+	if (!ifs.is_open()) {
+		throw "打开文件" + fileName + "失败";
+	}
+
+	string buf;
+	//读掉开头的文件名
+	getline(ifs, buf);
+	if (buf.find("WZ") != string::npos) {
+		pseudo = true;
+	} else if (buf.find("YD") == string::npos) {
+		throw "不是轨迹文件";
+	}
+
+	DeltaPath path;
+	//处理逗号
+	char comma;
+	//伪基站
+	if (pseudo) {
+		ifs >> path.from.x >> comma >> path.from.y;
+		while (!EndInput(path.from)) {
+			ifs >> comma >> path.to.x
+				>> comma >> path.to.y
+				>> comma >> path.velocity
+				>> comma >> path.startTime.hour
+				>> comma >> path.startTime.minute
+				>> comma >> path.index;
+			path.isPseudo = true;
+			paths.push_back(path);
+			ifs >> path.from.x >> comma >> path.from.y;
+		}
+	} else {
+		//不是伪基站
+		ifs >> path.from.x >> comma >> path.from.y;
+		while (!EndInput(path.from)) {
+			ifs >> comma >> path.to.x
+				>> comma >> path.to.y
+				>> comma >> path.velocity
+				>> comma >> path.startTime.hour
+				>> comma >> path.startTime.minute;
+
+			paths.push_back(path);
+			ifs >> path.from.x >> comma >> path.from.y;
+		}
+	}
 }
 
 MovePath::MovePath(string fileName) {
@@ -300,6 +351,10 @@ ConnectFirst CalcFirstConnection(const MovePath& movePath,const QuadTree& tree) 
 
 			std::cout << "f() took " << fp_ms.count() << " ms\n";
 #endif // DEBUG
+			ret.T1 = deltaPath.startTime; 
+			ret.T2 = deltaPath.startTime; 
+			ret.T1.AddMinute(deltaPath.from.Dis(ret.A1) / deltaPath.velocity * 0.06);
+			ret.T2.AddMinute(deltaPath.from.Dis(ret.A2) / deltaPath.velocity * 0.06);
 	return ret;
 }
 

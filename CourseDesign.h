@@ -9,10 +9,17 @@ class CourseDesign : public QMainWindow
 public:
     CourseDesign(QWidget *parent = nullptr);
     ~CourseDesign();
-
+    void OpenMainFile();
+    void OpenMoveFile();
+    void OpenPseudo();
 private:
     //是否已经打开文件
-    bool openFile = false;
+    bool openMainFile = false;
+    //是否打开路径文件
+    bool openPathFile = false;
+    MovePath path;
+    MovePath pseudoPath;
+    bool openPseudo = false;
     QuadTree tree;
     Ui::CourseDesignClass ui;
 

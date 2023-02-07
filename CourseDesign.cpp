@@ -10,8 +10,9 @@
 /// <param name="btn">绑定的按钮</param>
 void CourseDesign::Task1(unsigned index, const QPushButton* btn) {
     connect(btn, &QPushButton::clicked, [=]() {
+			ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
        vector<Station> res(tree.TraverseTreeByOneDirection(index));
-       QString ret;
+       //QString ret;
        stringstream ss;
        for (Station station : res) {
            ss << "编号: " << station.index
@@ -20,35 +21,23 @@ void CourseDesign::Task1(unsigned index, const QPushButton* btn) {
                << "\t类型: " << station.stationType
                << "\t信号强度: " << station.signalStrength << endl;
        }
-       ret.append(QString::fromLocal8Bit(ss.str().c_str()));
-       ui.textBrowser->setText(ret);
+       //ret.append(QString::fromLocal8Bit(ss.str().c_str()));
+       //ui.textBrowser->setText(ret);
+       ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
     });
 }
 CourseDesign::CourseDesign(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-
+    ui.tabWidget->setEnabled(false);
     //选择数据文件
-    connect(ui.file_button, &QPushButton::clicked, [=]() {
-        QString filePath = QFileDialog::getOpenFileName(this, "打开文件", "", "*.txt");
-        openFile = true;
-        try {
-            tree.BuildTree(string(filePath.toLocal8Bit()));
-        }
-        catch (const char* e) {
-            if (openFile) openFile = false;
-            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
-        }
-        if (openFile) {
-            ui.fileName->setText(QFileInfo(filePath).fileName());
-            ui.doubleSpinBox_x->setMinimum(tree.leftBottomBorder.x);
-            ui.doubleSpinBox_x->setMaximum(tree.rightTopBorder.x);
-            ui.doubleSpinBox_y->setMinimum(tree.leftBottomBorder.y);
-            ui.doubleSpinBox_y->setMaximum(tree.rightTopBorder.y);
-        }
-    });
+    connect(ui.file_button, &QPushButton::clicked, this, &CourseDesign::OpenMainFile);
+    //选择路径文件
+    connect(ui.path_button, &QPushButton::clicked, this, &CourseDesign::OpenMoveFile);
 
+    connect(ui.pseudo_btn, &QPushButton::clicked, this, &CourseDesign::OpenPseudo);
+    
     //主要功能一：显示基站数据
 	Task1(3, ui.main_1_button0);
 	Task1(2, ui.main_1_button1);
@@ -58,7 +47,6 @@ CourseDesign::CourseDesign(QWidget *parent)
     //主要功能二：计算信号最强的基站
     connect(ui.main_2_button, &QPushButton::clicked, [=]() {
         Point2 pos(ui.doubleSpinBox_x->value(), ui.doubleSpinBox_y->value());
-
        QString ret;
        stringstream ss;
        Station station = FindBestStation(tree, pos);
@@ -73,6 +61,219 @@ CourseDesign::CourseDesign(QWidget *parent)
        }
        ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
        });
+    //主要功能三：计算基站的切换序列
+    connect(ui.main_3_button, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        if (openPathFile) {
+            vector<ConnectInfo> res(CalcConnection(path, tree, 100));
+			stringstream ss;
+			for (ConnectInfo info : res) {
+				//double sec = (info.connectTime.minute - int(info.connectTime.minute)) * 60;
+				ss << "时间: " << info.connectTime.hour << " : " << int(info.connectTime.minute) //<< " : " << int(sec)
+					<< "\t坐标: (" << info.position.x << " , " << info.position.y << ")";
+				//断开连接
+				if (info.connectStation.index == -1) {
+					ss << "\t断开连接\n";
+				} else {
+					ss << "\t基站编号: " << info.connectStation.index 
+                        << "\t" << info.connectStation.stationType
+                        << endl;
+				}
+			}
+       //ret.append(QString::fromLocal8Bit(ss.str().c_str()));
+       //ui.textBrowser->setText(ret);
+			ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        }
+    });
+
+    //扩展功能一
+    connect(ui.main_2_btn, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        ConnectFirst res = CalcFirstConnection(path, tree);
+			stringstream ss;
+				double sec1 = (res.T1.minute - int(res.T1.minute)) * 60;
+				double sec2 = (res.T2.minute - int(res.T2.minute)) * 60;
+            ss << "基站编号: " << res.station.index
+                << "\n开始时间: " << res.T1.hour << " : " << (int)res.T1.minute << " : " << sec1
+                << "\n结束时间: " << res.T2.hour << " : " << (int)res.T2.minute << " : " << sec2
+                << endl;
+			ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        //ConnectFirst res = calc
+    });
+    //扩展功能二
+    connect(ui.main_2_btn2, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        OverlapInfo info = CalcOverlap(path, 2, tree);
+			stringstream ss;
+            double sec = info.totalTime.minute - (int)info.totalTime.minute;
+            ss << "基站编号: " << info.stations[0].index << ", " << info.stations[1].index
+               << "\n持续时间: ";
+            if (info.totalTime.hour != 0)
+            {
+                ss << info.totalTime.hour << " 小时 ";
+            }
+            ss << (int)info.totalTime.minute << " 分钟 " 
+               << sec << " 秒" << endl;
+			ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        //ConnectFirst res = calc
+    });
+    connect(ui.main_2_btn3, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        OverlapInfo info = CalcOverlap(path, 5, tree);
+			stringstream ss;
+            double sec = info.totalTime.minute - (int)info.totalTime.minute;
+            ss << "基站编号: " << info.stations[0].index << ", " << info.stations[1].index
+               << "\n持续时间: ";
+            if (info.totalTime.hour != 0)
+            {
+                ss << info.totalTime.hour << " 小时 ";
+            }
+            ss << (int)info.totalTime.minute << " 分钟 " 
+               << sec << " 秒" << endl;
+			ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        //ConnectFirst res = calc
+    });
+    //升级功能
+    connect(ui.main_3_btn, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+        if (openPseudo == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开伪基站路径文件"));
+            return;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        vector<ConnectInfo> res(PseudoConnection(path, pseudoPath, 9));
+        stringstream ss;
+        if (res.size() == 0) {
+            ss << "未连接伪基站\n";
+        } else {
+            double sec1 = res[0].connectTime.minute - (int)res[0].connectTime.minute;
+            double sec2 = res[1].connectTime.minute - (int)res[1].connectTime.minute;
+            ss << "基站编号: " << res[0].connectStation.index
+                << "\n开始时间: " << res[0].connectTime.hour << " : " << (int)res[0].connectTime.minute << " : " << sec1
+                << "\n结束时间: " << res[1].connectTime.hour << " : " << (int)res[1].connectTime.minute << " : " << sec2
+                << endl;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        //ConnectFirst res = calc
+    });
+
+    connect(ui.main_3_btn2, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+        if (openPseudo == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开伪基站路径文件"));
+            return;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        vector<ConnectInfo> res(PseudoConnection(path, pseudoPath, 11));
+        stringstream ss;
+        if (res.size() == 0) {
+            ss << "未连接伪基站\n";
+        } else {
+            double sec1 = res[0].connectTime.minute - (int)res[0].connectTime.minute;
+            double sec2 = res[1].connectTime.minute - (int)res[1].connectTime.minute;
+            ss << "基站编号: " << res[0].connectStation.index
+                << "\n开始时间: " << res[0].connectTime.hour << " : " << (int)res[0].connectTime.minute << " : " << sec1
+                << "\n结束时间: " << res[1].connectTime.hour << " : " << (int)res[1].connectTime.minute << " : " << sec2
+                << endl;
+        }
+		ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        //ConnectFirst res = calc
+    });
+}
+
+void CourseDesign::OpenMainFile() {
+        QString filePath = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开文件"), "", "*.txt"); openMainFile = true;
+        try {
+            tree.BuildTree(string(filePath.toLocal8Bit()));
+        }
+        catch (const char* e) {
+            if (openMainFile) openMainFile = false;
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
+        }
+        if (openMainFile) {
+            ui.tabWidget->setEnabled(true);
+            ui.fileName->setText(QFileInfo(filePath).fileName());
+            ui.doubleSpinBox_x->setMinimum(tree.leftBottomBorder.x);
+            ui.doubleSpinBox_x->setMaximum(tree.rightTopBorder.x);
+            ui.doubleSpinBox_y->setMinimum(tree.leftBottomBorder.y);
+            ui.doubleSpinBox_y->setMaximum(tree.rightTopBorder.y);
+        }
+}
+
+void CourseDesign::OpenMoveFile() {
+        QString filePath = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开文件"), "", "*.txt");
+        openPathFile = true;
+        try {
+            path.Init(string(filePath.toLocal8Bit()));
+        }
+        catch (const char* e) {
+            if (openPathFile) openPathFile = false;
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
+        }
+        if (openPathFile) {
+            ui.main_3_label->setText(QFileInfo(filePath).fileName());
+        }
+}
+
+void CourseDesign::OpenPseudo() {
+        QString filePath = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开文件"), "", "*.txt");
+        openPseudo = true;
+        try {
+            pseudoPath.Init(string(filePath.toLocal8Bit()));
+        }
+        catch (const char* e) {
+            if (openPseudo) openPseudo = false;
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
+        }
+        if ((openPseudo)) {
+            ui.pseudo_label->setText(QFileInfo(filePath).fileName());
+        }
 }
 
 CourseDesign::~CourseDesign()
