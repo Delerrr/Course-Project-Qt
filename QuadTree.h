@@ -53,12 +53,17 @@ private:
 public: 
 	double maxBaseSignalStrength = 1.0;
 
+		Point2 leftBottomBorder;
+		Point2 rightTopBorder;
 	// 根据文件来构建四叉树
 	QuadTree(string fileName);
 
+	void BuildTree(string fileName);
 	~QuadTree() { 
 		DestructHelper(rootNode);
 	};
+	
+
 
 	/// <summary>
 	/// 遍历树的某个方向

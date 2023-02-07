@@ -79,8 +79,67 @@ QuadTree::QuadTree(string fileName) {
 	maxBaseSignalStrength = (*max_element(stations.begin(), stations.end(), SignalComp)).signalStrength;
 
 	ConstructHelper(stations, rootNode, rootNode.depth);
+	leftBottomBorder = rootNode.leftBottomBorder;
+	rightTopBorder = rootNode.rightTopBorder;
 }
 
+
+/// <summary>
+/// 根据文件名构建树
+/// </summary>
+/// <param name="fileName"></param>
+void QuadTree::BuildTree(string fileName) {
+	DestructHelper(rootNode);
+	rootNode.isLeaf = false;
+	ifstream ifs(fileName);
+	if (!ifs.is_open()) {
+		throw "打开文件" + fileName + "失败";
+	}
+
+	string buf;
+	//读掉开头的文件名
+	getline(ifs, buf);
+	if (buf.find("JZ") == string::npos) {
+		throw "不是站点文件";
+	}
+	vector<Station> stations;
+	Station inputStation;
+	//处理逗号
+	char comma;
+	
+	ifs >> inputStation.coordinate.x
+		>> comma
+		>> inputStation.coordinate.y;
+
+	while (!EndInput(inputStation.coordinate))
+	{
+		//处理逗号
+		ifs >> comma
+			>> inputStation.stationType
+			>> inputStation.signalStrength
+			>> comma
+			>> inputStation.index;
+
+		stations.push_back(inputStation);
+
+		ifs >> inputStation.coordinate.x
+			>> comma
+			>> inputStation.coordinate.y;
+	}
+	ifs.close();
+
+
+	rootNode.leftBottomBorder.x = (*min_element(stations.begin(), stations.end(), XComp)).coordinate.x;
+	rootNode.leftBottomBorder.y = (*min_element(stations.begin(), stations.end(), YComp)).coordinate.y;
+	rootNode.rightTopBorder.x = (*max_element(stations.begin(), stations.end(), XComp)).coordinate.x;
+	rootNode.rightTopBorder.y = (*max_element(stations.begin(), stations.end(), YComp)).coordinate.y;
+
+	maxBaseSignalStrength = (*max_element(stations.begin(), stations.end(), SignalComp)).signalStrength;
+
+	ConstructHelper(stations, rootNode, rootNode.depth);
+	leftBottomBorder = rootNode.leftBottomBorder;
+	rightTopBorder = rootNode.rightTopBorder;
+}
 void QuadTree::ConstructHelper(vector<Station>& stations, TreeNode& node, unsigned depth) {
 	Point2 leftBottomBorder = node.leftBottomBorder;
 	Point2 rightTopBorder = node.rightTopBorder;

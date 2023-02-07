@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>889</width>
-    <height>720</height>
+    <width>886</width>
+    <height>717</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_5">
     <item row="0" column="3">
-     <widget class="QWidget" name="widget_8" native="true">
+     <widget class="QWidget" name="main_widegt" native="true">
       <layout class="QGridLayout" name="gridLayout_6">
        <item row="0" column="0">
         <widget class="QWidget" name="widget" native="true">
@@ -38,7 +38,12 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_6">
+              <widget class="QLabel" name="fileName">
+               <property name="font">
+                <font>
+                 <family>Consolas</family>
+                </font>
+               </property>
                <property name="text">
                 <string>无</string>
                </property>
@@ -48,7 +53,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_3">
+           <widget class="QPushButton" name="file_button">
             <property name="font">
              <font>
               <family>18thCentury</family>
@@ -79,32 +84,10 @@
            <string>主要功能</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QWidget" name="widget_main_1" native="true">
              <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="font">
-                 <font>
-                  <family>楷体</family>
-                  <pointsize>15</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>一、计算信号最强的基站</string>
-                </property>
-                <property name="textFormat">
-                 <enum>Qt::AutoText</enum>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="margin">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
+              <item row="3" column="0">
                <widget class="QWidget" name="widget_6" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_3">
                  <property name="spacing">
@@ -125,9 +108,6 @@
                  <item>
                   <widget class="QWidget" name="widget_5" native="true">
                    <layout class="QVBoxLayout" name="verticalLayout">
-                    <property name="spacing">
-                     <number>0</number>
-                    </property>
                     <property name="topMargin">
                      <number>0</number>
                     </property>
@@ -144,6 +124,12 @@
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>30</height>
+                       </size>
                       </property>
                       <property name="maximumSize">
                        <size>
@@ -180,26 +166,23 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_x">
+                        <widget class="QDoubleSpinBox" name="doubleSpinBox_x">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
                          </property>
-                         <property name="maximumSize">
+                         <property name="minimumSize">
                           <size>
-                           <width>16777215</width>
-                           <height>16777215</height>
+                           <width>0</width>
+                           <height>30</height>
                           </size>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>15</pointsize>
+                           <pointsize>11</pointsize>
                           </font>
-                         </property>
-                         <property name="text">
-                          <string/>
                          </property>
                         </widget>
                        </item>
@@ -209,10 +192,16 @@
                     <item>
                      <widget class="QWidget" name="widget_4" native="true">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>30</height>
+                       </size>
                       </property>
                       <layout class="QHBoxLayout" name="horizontalLayout_2">
                        <property name="spacing">
@@ -243,10 +232,22 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_y">
+                        <widget class="QDoubleSpinBox" name="doubleSpinBox_y">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>30</height>
+                          </size>
+                         </property>
                          <property name="font">
                           <font>
-                           <pointsize>15</pointsize>
+                           <pointsize>11</pointsize>
                           </font>
                          </property>
                         </widget>
@@ -258,7 +259,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="main_1_button">
+                  <widget class="QPushButton" name="main_2_button">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -279,10 +280,32 @@
                 </layout>
                </widget>
               </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="font">
+                 <font>
+                  <family>楷体</family>
+                  <pointsize>15</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>二、计算信号最强的基站</string>
+                </property>
+                <property name="textFormat">
+                 <enum>Qt::AutoText</enum>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -295,7 +318,7 @@
              </property>
             </spacer>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QWidget" name="widget_main_2" native="true">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -304,28 +327,6 @@
               </sizepolicy>
              </property>
              <layout class="QGridLayout" name="gridLayout">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_4">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>楷体</family>
-                  <pointsize>15</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>二、计算基站的切换序列</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="0">
                <widget class="QWidget" name="widget_10" native="true">
                 <property name="font">
@@ -344,6 +345,11 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="main_2_label">
+                   <property name="font">
+                    <font>
+                     <family>Consolas</family>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>无</string>
                    </property>
@@ -352,10 +358,51 @@
                 </layout>
                </widget>
               </item>
+              <item row="2" column="0">
+               <widget class="QPushButton" name="main_3_button">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>宋体</family>
+                  <pointsize>14</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>选择移动路径数据文件</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>楷体</family>
+                  <pointsize>15</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>三、计算基站的切换序列</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -371,23 +418,92 @@
              </property>
             </spacer>
            </item>
-           <item row="3" column="0">
-            <widget class="QPushButton" name="main_2_button">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <family>宋体</family>
-               <pointsize>14</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>选择移动路径数据文件</string>
-             </property>
+           <item row="0" column="0">
+            <widget class="QWidget" name="widget_12" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="font">
+                 <font>
+                  <family>楷体</family>
+                  <pointsize>15</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>一、显示基站数据</string>
+                </property>
+                <property name="textFormat">
+                 <enum>Qt::AutoText</enum>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_9">
+                <property name="font">
+                 <font>
+                  <family>宋体</family>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>1.1 显示西北角、东南角区域数据</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widget_11" native="true">
+                <layout class="QGridLayout" name="gridLayout_7">
+                 <item row="0" column="3">
+                  <widget class="QPushButton" name="main_1_button1">
+                   <property name="text">
+                    <string>东北角</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="3">
+                  <widget class="QPushButton" name="main_1_button3">
+                   <property name="text">
+                    <string>东南角</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QPushButton" name="main_1_button0">
+                   <property name="text">
+                    <string>西北角</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QPushButton" name="main_1_button2">
+                   <property name="text">
+                    <string>西南角</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="font">
+                 <font>
+                  <family>宋体</family>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>1.2 没读懂题，暂未实现</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -444,7 +560,7 @@
       </layout>
      </widget>
     </item>
-    <item row="0" column="1" rowspan="2" colspan="2">
+    <item row="0" column="0" rowspan="2" colspan="2">
      <widget class="QTextBrowser" name="textBrowser"/>
     </item>
    </layout>

@@ -42,7 +42,6 @@ public:
 	Point2 operator*(double rate) {
 		return Point2(x * rate, y * rate);
 	}
-
 };
 
 /// <summary>
