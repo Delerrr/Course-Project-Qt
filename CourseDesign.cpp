@@ -163,15 +163,19 @@ CourseDesign::CourseDesign(QWidget *parent)
 		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
         OverlapInfo info = CalcOverlap(path, 2, tree);
 			stringstream ss;
-            double sec = info.totalTime.minute - (int)info.totalTime.minute;
-            ss << "基站编号: " << info.stations[0].index << ", " << info.stations[1].index
-               << "\n持续时间: ";
-            if (info.totalTime.hour != 0)
-            {
-                ss << info.totalTime.hour << " 小时 ";
+            if (info.stations.size() > 0) {
+				double sec = info.totalTime.minute - (int)info.totalTime.minute;
+				ss << "基站编号: " << info.stations[0].index << ", " << info.stations[1].index
+					<< "\n持续时间: ";
+				if (info.totalTime.hour != 0)
+				{
+					ss << info.totalTime.hour << " 小时 ";
+				}
+				ss << (int)info.totalTime.minute << " 分钟 "
+					<< sec << " 秒" << endl;
+            } else {
+                ss << "没有重叠区\n";
             }
-            ss << (int)info.totalTime.minute << " 分钟 " 
-               << sec << " 秒" << endl;
 			ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
         //ConnectFirst res = calc
     });
@@ -187,15 +191,19 @@ CourseDesign::CourseDesign(QWidget *parent)
 		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
         OverlapInfo info = CalcOverlap(path, 5, tree);
 			stringstream ss;
-            double sec = info.totalTime.minute - (int)info.totalTime.minute;
-            ss << "基站编号: " << info.stations[0].index << ", " << info.stations[1].index
-               << "\n持续时间: ";
-            if (info.totalTime.hour != 0)
-            {
-                ss << info.totalTime.hour << " 小时 ";
+            if (info.stations.size() > 0) {
+				double sec = info.totalTime.minute - (int)info.totalTime.minute;
+				ss << "基站编号: " << info.stations[0].index << ", " << info.stations[1].index
+					<< "\n持续时间: ";
+				if (info.totalTime.hour != 0)
+				{
+					ss << info.totalTime.hour << " 小时 ";
+				}
+				ss << (int)info.totalTime.minute << " 分钟 "
+					<< sec << " 秒" << endl;
+            } else {
+                ss << "没有重叠区\n";
             }
-            ss << (int)info.totalTime.minute << " 分钟 " 
-               << sec << " 秒" << endl;
 			ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
         //ConnectFirst res = calc
     });

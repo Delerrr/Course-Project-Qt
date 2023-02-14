@@ -592,7 +592,8 @@ p, li { white-space: pre-wrap; }
                <widget class="QLabel" name="pseudo_label">
                 <property name="font">
                  <font>
-                  <pointsize>11</pointsize>
+                  <family>新宋体</family>
+                  <pointsize>12</pointsize>
                  </font>
                 </property>
                 <property name="text">
