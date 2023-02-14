@@ -148,7 +148,7 @@ void QuadTree::ConstructHelper(vector<Station>& stations, TreeNode& node, unsign
 		node.stations.assign(stations.begin(), stations.end());
 		return;
 	}
-
+	node.isLeaf = false;
 	vector<Station> substations[4];
 
 	const int length = sizeof(node.subNodes) / sizeof(rootNode.subNodes[0]);
