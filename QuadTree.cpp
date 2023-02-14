@@ -90,18 +90,18 @@ QuadTree::QuadTree(string fileName) {
 /// <param name="fileName"></param>
 void QuadTree::BuildTree(string fileName) {
 	DestructHelper(rootNode);
-	rootNode.isLeaf = false;
 	ifstream ifs(fileName);
 	if (!ifs.is_open()) {
 		throw "打开文件" + fileName + "失败";
 	}
-
 	string buf;
 	//读掉开头的文件名
 	getline(ifs, buf);
 	if (buf.find("JZ") == string::npos) {
 		throw "不是站点文件";
 	}
+
+	rootNode.isLeaf = false;
 	vector<Station> stations;
 	Station inputStation;
 	//处理逗号
@@ -224,7 +224,7 @@ vector<Station> QuadTree::TraverseNodeByOneDirection(TreeNode node, int index) {
 /// 析构函数的辅助函数
 /// </summary>
 /// <param name="node"></param>
-void QuadTree::DestructHelper(TreeNode node) {
+void QuadTree::DestructHelper(TreeNode& node) {
 	if (node.isLeaf) {
 		return;
 	}
@@ -233,6 +233,7 @@ void QuadTree::DestructHelper(TreeNode node) {
 		DestructHelper(*subNodePtr);
 		delete subNodePtr;
 	}
+	node.isLeaf = true;
 }
 
 /// <summary>

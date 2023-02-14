@@ -4,6 +4,40 @@
 #include <sstream>
 #include <QMessageBox>
 /// <summary>
+/// 升级功能的辅助函数
+/// </summary>
+/// <param name="index">第几段移动路径</param>
+void CourseDesign::Task3(unsigned index, const QPushButton* btn) {
+    connect(btn, &QPushButton::clicked, [=]() {
+        if (openMainFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
+            return;
+        }
+        if (openPathFile == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
+            return;
+        }
+        if (openPseudo == false) {
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开伪基站路径文件"));
+            return;
+        }
+        ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        vector<ConnectInfo> res(PseudoConnection(path, pseudoPath, index - 1));
+        stringstream ss;
+        if (res.size() == 0) {
+            ss << "未连接伪基站\n";
+        } else {
+            double sec1 = res[0].connectTime.minute - (int)res[0].connectTime.minute;
+            double sec2 = res[1].connectTime.minute - (int)res[1].connectTime.minute;
+            ss << "基站编号: " << res[0].connectStation.index
+                << "\n开始时间: " << res[0].connectTime.hour << " : " << (int)res[0].connectTime.minute << " : " << sec1
+                << "\n结束时间: " << res[1].connectTime.hour << " : " << (int)res[1].connectTime.minute << " : " << sec2
+                << endl;
+        }
+        ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+        });
+}
+/// <summary>
 /// 显示基站数据的辅助函数
 /// </summary>
 /// <param name="index">方向，为0,1,2,3, 分别表示左下角（西南）、右下角（东南）、右上角（东北）、左上角（西北）</param>
@@ -19,7 +53,7 @@ void CourseDesign::Task1(unsigned index, const QPushButton* btn) {
                << "\t坐标: (" << station.coordinate.x
                << ", " << station.coordinate.y << ")"
                << "\t类型: " << station.stationType
-               << "\t信号强度: " << station.signalStrength << endl;
+               << "\t信号强度: " << station.signalStrength << "\n\n";
        }
        //ret.append(QString::fromLocal8Bit(ss.str().c_str()));
        //ui.textBrowser->setText(ret);
@@ -46,7 +80,7 @@ CourseDesign::CourseDesign(QWidget *parent)
 
     //主要功能二：计算信号最强的基站
     connect(ui.main_2_button, &QPushButton::clicked, [=]() {
-        Point2 pos(ui.doubleSpinBox_x->value(), ui.doubleSpinBox_y->value());
+       Point2 pos(ui.doubleSpinBox_x->value(), ui.doubleSpinBox_y->value());
        QString ret;
        stringstream ss;
        Station station = FindBestStation(tree, pos);
@@ -55,7 +89,7 @@ CourseDesign::CourseDesign(QWidget *parent)
                << "\t基站坐标: (" << station.coordinate.x
                << ", " << station.coordinate.y << ")"
                << "\t类型: " << station.stationType
-               << "\t信号强度: " << station.signalStrength << endl;
+               << "\t基准信号强度: " << station.signalStrength << endl;
        } else {
            ss << "没有可连接的基站";
        }
@@ -73,19 +107,19 @@ CourseDesign::CourseDesign(QWidget *parent)
         }
 		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
         if (openPathFile) {
-            vector<ConnectInfo> res(CalcConnection(path, tree, 100));
+            vector<ConnectInfo> res(CalcConnection(path, tree, 10));
 			stringstream ss;
 			for (ConnectInfo info : res) {
 				//double sec = (info.connectTime.minute - int(info.connectTime.minute)) * 60;
 				ss << "时间: " << info.connectTime.hour << " : " << int(info.connectTime.minute) //<< " : " << int(sec)
-					<< "\t坐标: (" << info.position.x << " , " << info.position.y << ")";
+					<< "\t 坐标: (" << info.position.x << " , " << info.position.y << ")";
 				//断开连接
 				if (info.connectStation.index == -1) {
-					ss << "\t断开连接\n";
+					ss << "\t断开连接\n\n";
 				} else {
 					ss << "\t基站编号: " << info.connectStation.index 
                         << "\t" << info.connectStation.stationType
-                        << endl;
+                        << "\n\n";
 				}
 			}
        //ret.append(QString::fromLocal8Bit(ss.str().c_str()));
@@ -166,7 +200,9 @@ CourseDesign::CourseDesign(QWidget *parent)
         //ConnectFirst res = calc
     });
     //升级功能
-    connect(ui.main_3_btn, &QPushButton::clicked, [=]() {
+    Task3(9, ui.main_3_btn);
+    Task3(12, ui.main_3_btn2);
+    connect(ui.main_3_btn3, &QPushButton::clicked, [=]() {
         if (openMainFile == false) {
             QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
             return;
@@ -179,8 +215,8 @@ CourseDesign::CourseDesign(QWidget *parent)
             QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开伪基站路径文件"));
             return;
         }
-		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
-        vector<ConnectInfo> res(PseudoConnection(path, pseudoPath, 9));
+        ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
+        vector<ConnectInfo> res(PseudoConnection(path, pseudoPath, ui.spinBox_3->value() - 1));
         stringstream ss;
         if (res.size() == 0) {
             ss << "未连接伪基站\n";
@@ -192,38 +228,7 @@ CourseDesign::CourseDesign(QWidget *parent)
                 << "\n结束时间: " << res[1].connectTime.hour << " : " << (int)res[1].connectTime.minute << " : " << sec2
                 << endl;
         }
-		ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
-        //ConnectFirst res = calc
-    });
-
-    connect(ui.main_3_btn2, &QPushButton::clicked, [=]() {
-        if (openMainFile == false) {
-            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开基站数据文件"));
-            return;
-        }
-        if (openPathFile == false) {
-            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开路径文件"));
-            return;
-        }
-        if (openPseudo == false) {
-            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未打开伪基站路径文件"));
-            return;
-        }
-		ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
-        vector<ConnectInfo> res(PseudoConnection(path, pseudoPath, 11));
-        stringstream ss;
-        if (res.size() == 0) {
-            ss << "未连接伪基站\n";
-        } else {
-            double sec1 = res[0].connectTime.minute - (int)res[0].connectTime.minute;
-            double sec2 = res[1].connectTime.minute - (int)res[1].connectTime.minute;
-            ss << "基站编号: " << res[0].connectStation.index
-                << "\n开始时间: " << res[0].connectTime.hour << " : " << (int)res[0].connectTime.minute << " : " << sec1
-                << "\n结束时间: " << res[1].connectTime.hour << " : " << (int)res[1].connectTime.minute << " : " << sec2
-                << endl;
-        }
-		ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
-        //ConnectFirst res = calc
+        ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
     });
 }
 
@@ -235,6 +240,12 @@ void CourseDesign::OpenMainFile() {
         catch (const char* e) {
             if (openMainFile) openMainFile = false;
             QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
+            ui.fileName->setText(QString::fromLocal8Bit("无"));
+        }
+        catch (string e) {
+            if (openMainFile) openMainFile = false;
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e.c_str()));
+            ui.fileName->setText(QString::fromLocal8Bit("无"));
         }
         if (openMainFile) {
             ui.tabWidget->setEnabled(true);
@@ -255,6 +266,12 @@ void CourseDesign::OpenMoveFile() {
         catch (const char* e) {
             if (openPathFile) openPathFile = false;
             QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
+            ui.main_3_label->setText(QString::fromLocal8Bit("无"));
+        }
+        catch (string e) {
+            if (openPathFile) openPathFile = false;
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e.c_str()));
+            ui.main_3_label->setText(QString::fromLocal8Bit("无"));
         }
         if (openPathFile) {
             ui.main_3_label->setText(QFileInfo(filePath).fileName());
@@ -270,11 +287,21 @@ void CourseDesign::OpenPseudo() {
         catch (const char* e) {
             if (openPseudo) openPseudo = false;
             QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e));
+            ui.pseudo_label->setText(QString::fromLocal8Bit("无"));
+        }
+        catch (string e) {
+            if (openPseudo) openPseudo = false;
+            QMessageBox::critical(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit(e.c_str()));
+            ui.pseudo_label->setText(QString::fromLocal8Bit("无"));
         }
         if ((openPseudo)) {
             ui.pseudo_label->setText(QFileInfo(filePath).fileName());
+            ui.spinBox_3->setMinimum(1);
+            ui.spinBox_3->setMaximum(path.paths.size());
+            ui.doubleSpinBox_x->setSingleStep(1);
         }
 }
 
 CourseDesign::~CourseDesign()
 {}
+

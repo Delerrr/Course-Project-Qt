@@ -29,11 +29,6 @@ bool IsInRegion(Point2 point, Point2 leftBottom, Point2 rightTop, int index) {
 /// <summary>
 /// 判断两个矩形区域是否重叠
 /// </summary>
-/// <param name="leftBottom1"></param>
-/// <param name="rightTop1"></param>
-/// <param name="leftBottom2"></param>
-/// <param name="rightTop2"></param>
-/// <returns></returns>
 bool IsOverlapped(Point2 leftBottom1, Point2 rightTop1, Point2 leftBottom2, Point2 rightTop2) {
 	return !(
 		leftBottom2.x > rightTop1.x ||

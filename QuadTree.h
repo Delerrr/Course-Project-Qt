@@ -17,7 +17,7 @@ private:
 		Point2 rightTopBorder;
 
 		// 是否为叶节点
-		bool isLeaf = false;
+		bool isLeaf = true;
 		// 不是叶节点则必有四个子节点
 		TreeNode* subNodes[4];
 		// 是叶节点则存储站点
@@ -46,7 +46,7 @@ private:
 	/// <summary>
 	/// 析构函数的辅助函数
 	/// </summary>
-	void DestructHelper(TreeNode node);
+	void DestructHelper(TreeNode& node);
 
 	vector<Station> FindHelper(const Point2& leftBottom, const Point2& rightTop, TreeNode node) const;
 
