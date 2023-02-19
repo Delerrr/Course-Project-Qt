@@ -58,11 +58,6 @@ Station FindBestStation(const QuadTree& tree,const Point2& position) {
 			{
 				double signal = CalcSignal(BaseRadius[i] * sqrt(station.signalStrength), station.coordinate.Dis(position));
 				if (signal >= 1 && signal > maxSignal) {
-#ifdef DEBUG
-					totalnum++;
-					indexs.push_back(station.index);
-#endif // DEBUG
-
 					find = true;
 					maxSignal = signal;
 					ret = station;
@@ -74,14 +69,6 @@ Station FindBestStation(const QuadTree& tree,const Point2& position) {
 	if (!find) {
 		ret.index = -1;
 	}
-
-#ifdef DEBUG
-	if (totalnum > 1) {
-		cout << "totalnum: " << totalnum << ", indexs: ";
-		copy(indexs.begin(), indexs.end(), ostream_iterator<int>(cout, ", ")); 
-		cout<< endl;
-	}
-#endif // DEBUG
 
 	return ret;
 }
@@ -187,9 +174,6 @@ MovePath::MovePath(string fileName) {
 	}
 }
 
-#ifdef DEBUG
-int cnt = 0;
-#endif
 /// <summary>
 /// 根据移动终端移动轨迹，计算站点的链接序列(不考虑伪基站)
 /// </summary>
@@ -207,16 +191,6 @@ vector<ConnectInfo> CalcConnection(const MovePath& movePath,const QuadTree& tree
 		double totalPos = deltaPath.from.Dis(deltaPath.to);
 		info.connectTime = deltaPath.startTime;
 		for (double t = 0; t < totalPos; t += deltaPos) {
-#ifdef DEBUG
-			//auto t1 = std::chrono::high_resolution_clock::now();
-#endif // DEBUG
-#ifdef d
-			cnt++;
-			if (cnt % 1000 == 0) {
-				system("cls");
-				cout << cnt;
-			}
-#endif
 			Point2 norm = (deltaPath.to - deltaPath.from).Normalise();
 			//根据当前位置寻找信号最好的站点
 			Point2 newPos = deltaPath.from + norm * t;
@@ -229,21 +203,6 @@ vector<ConnectInfo> CalcConnection(const MovePath& movePath,const QuadTree& tree
 			}
 
 			info.connectTime.AddMinute(deltaPos * 0.06 / deltaPath.velocity);
-#ifdef DEBUG
-			//auto t2 = std::chrono::high_resolution_clock::now();
-
-			//// floating-point duration: no duration_cast needed
-			//std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
-
-			//// integral duration: requires duration_cast
-			//auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-
-			//// converting integral duration to integral duration of shorter divisible time unit:
-			//// no duration_cast needed
-			//std::chrono::duration<long, std::micro> int_usec = int_ms;
-
-			//std::cout << "f() took " << fp_ms.count() << " ms\n";
-#endif // DEBUG
 		}
 	}
 
@@ -260,9 +219,6 @@ vector<ConnectInfo> CalcConnection(const MovePath& movePath,const QuadTree& tree
 ConnectFirst CalcFirstConnection(const MovePath& movePath,const QuadTree& tree) {
 	//初始精度/米
 	double deltaPos = 10;
-#ifdef DEBUG
-	auto t1 = std::chrono::high_resolution_clock::now();
-#endif // DEBUG
 	ConnectFirst ret;
 	DeltaPath deltaPath = movePath.paths[0];
 	//A1, A2是粗略遍历得到的两个结果（进入信号范围和离信号范围）
@@ -336,21 +292,6 @@ ConnectFirst CalcFirstConnection(const MovePath& movePath,const QuadTree& tree) 
 		dis = stationPos.Dis(midPos) - radius;
 	}
 	ret.A2 = midPos;
-#ifdef DEBUG
-			auto t2 = std::chrono::high_resolution_clock::now();
-
-			// floating-point duration: no duration_cast needed
-			std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
-
-			// integral duration: requires duration_cast
-			auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-
-			// converting integral duration to integral duration of shorter divisible time unit:
-			// no duration_cast needed
-			std::chrono::duration<long, std::micro> int_usec = int_ms;
-
-			std::cout << "f() took " << fp_ms.count() << " ms\n";
-#endif // DEBUG
 			ret.T1 = deltaPath.startTime; 
 			ret.T2 = deltaPath.startTime; 
 			ret.T1.AddMinute(deltaPath.from.Dis(ret.A1) / deltaPath.velocity * 0.06);

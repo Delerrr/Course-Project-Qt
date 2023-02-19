@@ -95,7 +95,15 @@
   <ItemGroup>
     <ClInclude Include="Core.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CourseDesign.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="pictures\cat.jfif" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
