@@ -30,7 +30,6 @@ private:
     /// <param name="btn">绑定的按钮</param>
     void Task1(unsigned index, const QPushButton* btn); 
 
-
     /// <summary>
     /// 升级功能的辅助函数
     /// </summary>

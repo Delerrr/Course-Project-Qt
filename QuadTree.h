@@ -18,6 +18,10 @@ private:
 
 		// 是否为叶节点
 		bool isLeaf = true;
+		//父节点
+		TreeNode* parent = nullptr;
+		//当前节点在父节点的位置(0,1,2,3分别表示左下、右下、右上、左上)
+		unsigned pos;
 		// 不是叶节点则必有四个子节点
 		TreeNode* subNodes[4];
 		// 是叶节点则存储站点
@@ -50,20 +54,46 @@ private:
 
 	vector<Station> FindHelper(const Point2& leftBottom, const Point2& rightTop, TreeNode node) const;
 
+	const TreeNode& GetLeafHelper(const TreeNode& node, unsigned pos) const;
+	/// <summary>
+	/// 得到西南/东南/东北/西北角的树叶
+	/// </summary>
+	/// <param name="pos">0,1,2,3分别表示西南/东南/东北/西北</param>
+	TreeNode GetLeaf(unsigned pos) const;
+
+	/// <summary>
+	/// 查找某个树叶某方向的邻居的基站
+	/// </summary>
+	/// <param name="node">树叶节点</param>
+	/// <param name="pos">0,1,2,3,4,5,6,7分别表示西南，南，东南，东，东北，北，西北，西</param>
+	vector<Station> FindNeighborsByOneDirenction(const TreeNode& node, unsigned pos);
 public: 
 	double maxBaseSignalStrength = 1.0;
-
-		Point2 leftBottomBorder;
-		Point2 rightTopBorder;
+	Point2 leftBottomBorder;
+	Point2 rightTopBorder;
 	// 根据文件来构建四叉树
 	QuadTree(string fileName);
 
-	void BuildTree(string fileName);
+	void BuildTree(string fileName1, string fileName2);
 	~QuadTree() { 
 		DestructHelper(rootNode);
 	};
 	
-
+	/// <summary>
+	/// 查找西南/东南/东北/西北角的树叶的基站
+	/// </summary>
+	/// <param name="pos">0,1,2,3分别表示西南/东南/东北/西北</param>
+	vector<Station> FindSationsByOneDirection(unsigned pos);
+		
+	/// <summary>
+	/// 查找某树叶某方向的邻居
+	/// </summary>
+	/// <param name="leafPos">0,1,2,3分别表示西南/东南/东北/西北</param>
+	/// <param name="pos">0,1,2,3,4,5,6,7分别表示西南，南，东南，东，东北，北，西北，西</param>
+	/// <returns></returns>
+	vector<Station> FindLeafNeighborsByOneDirenction(unsigned leafPos, unsigned pos) {
+		return FindNeighborsByOneDirenction(GetLeaf(leafPos), pos);
+	}
 
 	/// <summary>
 	/// 遍历树的某个方向

@@ -45,7 +45,7 @@ void CourseDesign::Task3(unsigned index, const QPushButton* btn) {
 void CourseDesign::Task1(unsigned index, const QPushButton* btn) {
     connect(btn, &QPushButton::clicked, [=]() {
 			ui.textBrowser->setText(QString::fromLocal8Bit("计算中"));
-       vector<Station> res(tree.TraverseTreeByOneDirection(index));
+       vector<Station> res(tree.FindSationsByOneDirection(index));
        //QString ret;
        stringstream ss;
        for (Station station : res) {
@@ -54,6 +54,9 @@ void CourseDesign::Task1(unsigned index, const QPushButton* btn) {
                << ", " << station.coordinate.y << ")"
                << "\t类型: " << station.stationType
                << "\t信号强度: " << station.signalStrength << "\n\n";
+       }
+       if (res.size() == 0) {
+           ss << "无";
        }
        //ret.append(QString::fromLocal8Bit(ss.str().c_str()));
        //ui.textBrowser->setText(ret);
@@ -66,17 +69,33 @@ CourseDesign::CourseDesign(QWidget *parent)
     ui.setupUi(this);
     ui.tabWidget->setEnabled(false);
     //选择数据文件
-    connect(ui.file_button, &QPushButton::clicked, this, &CourseDesign::OpenMainFile);
+    OpenMainFile();
     //选择路径文件
-    connect(ui.path_button, &QPushButton::clicked, this, &CourseDesign::OpenMoveFile);
-
-    connect(ui.pseudo_btn, &QPushButton::clicked, this, &CourseDesign::OpenPseudo);
+    OpenMoveFile();
+    OpenPseudo();
     
     //主要功能一：显示基站数据
 	Task1(3, ui.main_1_button0);
 	Task1(2, ui.main_1_button1);
 	Task1(0, ui.main_1_button2);
 	Task1(1, ui.main_1_button3);
+
+    //主要功能1.2：计算树叶的邻居
+    connect(ui.main_12_btn, &QPushButton::clicked, [=]() {
+       vector<Station> res(tree.FindLeafNeighborsByOneDirenction(ui.comboBox->currentIndex(), ui.comboBox_2->currentIndex()));
+       stringstream ss;
+       for (Station station : res) {
+           ss << "编号: " << station.index
+               << "\t坐标: (" << station.coordinate.x
+               << ", " << station.coordinate.y << ")"
+               << "\t类型: " << station.stationType
+               << "\t信号强度: " << station.signalStrength << "\n\n";
+       }
+       if (res.size() == 0) {
+           ss << "无";
+       }
+       ui.textBrowser->setText(QString::fromLocal8Bit(ss.str().c_str()));
+    });
 
     //主要功能二：计算信号最强的基站
     connect(ui.main_2_button, &QPushButton::clicked, [=]() {
@@ -241,9 +260,11 @@ CourseDesign::CourseDesign(QWidget *parent)
 }
 
 void CourseDesign::OpenMainFile() {
-        QString filePath = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开文件"), "", "*.txt"); openMainFile = true;
+    QString fileName1 = "jz001.txt";
+    QString fileName2 = "jz002.txt";
+    openMainFile = true;
         try {
-            tree.BuildTree(string(filePath.toLocal8Bit()));
+            tree.BuildTree(fileName1.toStdString(), fileName2.toStdString());
         }
         catch (const char* e) {
             if (openMainFile) openMainFile = false;
@@ -257,7 +278,7 @@ void CourseDesign::OpenMainFile() {
         }
         if (openMainFile) {
             ui.tabWidget->setEnabled(true);
-            ui.fileName->setText(QFileInfo(filePath).fileName());
+            ui.fileName->setText(fileName1 + " " + fileName2);
             ui.doubleSpinBox_x->setMinimum(tree.leftBottomBorder.x);
             ui.doubleSpinBox_x->setMaximum(tree.rightTopBorder.x);
             ui.doubleSpinBox_y->setMinimum(tree.leftBottomBorder.y);
@@ -266,10 +287,10 @@ void CourseDesign::OpenMainFile() {
 }
 
 void CourseDesign::OpenMoveFile() {
-        QString filePath = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开文件"), "", "*.txt");
+    QString fileName = "yd001.txt";
         openPathFile = true;
         try {
-            path.Init(string(filePath.toLocal8Bit()));
+            path.Init(fileName.toStdString());
         }
         catch (const char* e) {
             if (openPathFile) openPathFile = false;
@@ -282,15 +303,15 @@ void CourseDesign::OpenMoveFile() {
             ui.main_3_label->setText(QString::fromLocal8Bit("无"));
         }
         if (openPathFile) {
-            ui.main_3_label->setText(QFileInfo(filePath).fileName());
+            ui.main_3_label->setText(fileName);
         }
 }
 
 void CourseDesign::OpenPseudo() {
-        QString filePath = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开文件"), "", "*.txt");
+    QString fileName = "wz001.txt";
         openPseudo = true;
         try {
-            pseudoPath.Init(string(filePath.toLocal8Bit()));
+            pseudoPath.Init(fileName.toStdString());
         }
         catch (const char* e) {
             if (openPseudo) openPseudo = false;
@@ -303,7 +324,7 @@ void CourseDesign::OpenPseudo() {
             ui.pseudo_label->setText(QString::fromLocal8Bit("无"));
         }
         if ((openPseudo)) {
-            ui.pseudo_label->setText(QFileInfo(filePath).fileName());
+            ui.pseudo_label->setText(fileName);
             ui.spinBox_3->setMinimum(1);
             ui.spinBox_3->setMaximum(path.paths.size());
             ui.doubleSpinBox_x->setSingleStep(1);

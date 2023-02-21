@@ -88,11 +88,11 @@ QuadTree::QuadTree(string fileName) {
 /// 根据文件名构建树
 /// </summary>
 /// <param name="fileName"></param>
-void QuadTree::BuildTree(string fileName) {
+void QuadTree::BuildTree(string fileName1, string fileName2) {
 	DestructHelper(rootNode);
-	ifstream ifs(fileName);
+	ifstream ifs(fileName1);
 	if (!ifs.is_open()) {
-		throw "打开文件" + fileName + "失败";
+		throw "打开文件" + fileName1 + "失败";
 	}
 	string buf;
 	//读掉开头的文件名
@@ -128,6 +128,36 @@ void QuadTree::BuildTree(string fileName) {
 	}
 	ifs.close();
 
+	ifs.open(fileName2);
+	if (!ifs.is_open()) {
+		throw "打开文件" + fileName2 + "失败";
+	}
+	//读掉开头的文件名
+	getline(ifs, buf);
+	if (buf.find("JZ") == string::npos) {
+		throw "不是站点文件";
+	}
+
+	ifs >> inputStation.coordinate.x
+		>> comma
+		>> inputStation.coordinate.y;
+
+	while (!EndInput(inputStation.coordinate))
+	{
+		//处理逗号
+		ifs >> comma
+			>> inputStation.stationType
+			>> inputStation.signalStrength
+			>> comma
+			>> inputStation.index;
+
+		stations.push_back(inputStation);
+
+		ifs >> inputStation.coordinate.x
+			>> comma
+			>> inputStation.coordinate.y;
+	}
+	ifs.close();
 
 	rootNode.leftBottomBorder.x = (*min_element(stations.begin(), stations.end(), XComp)).coordinate.x;
 	rootNode.leftBottomBorder.y = (*min_element(stations.begin(), stations.end(), YComp)).coordinate.y;
@@ -178,6 +208,8 @@ void QuadTree::ConstructHelper(vector<Station>& stations, TreeNode& node, unsign
 		}
 	}
 	for (int i = 0; i < 4; ++i) {
+		node.subNodes[i]->parent = &node;
+		node.subNodes[i]->pos = i;
 		ConstructHelper(substations[i], *(node.subNodes[i]), depth + 1);
 	}		
 }
@@ -264,5 +296,78 @@ vector<Station> QuadTree::Find(const Point2& leftBottom, const Point2& rightTop)
 }
  
 
+/// <summary>
+/// 得到西南/东南/东北/西北角的树叶
+/// </summary>
+/// <param name="pos">0,1,2,3分别表示西南/东南/东北/西北</param>
+QuadTree::TreeNode QuadTree::GetLeaf(unsigned pos) const {
+	return GetLeafHelper(rootNode, pos);
+}
 
+const QuadTree::TreeNode& QuadTree::GetLeafHelper(const TreeNode& node, unsigned pos) const {
+	if (node.isLeaf) {
+		return node;
+	}
 
+	return GetLeafHelper(*(node.subNodes[pos]), pos);
+}
+
+/// <summary>
+/// 查找西南/东南/东北/西北角的树叶的基站
+/// </summary>
+/// <param name="pos">0,1,2,3分别表示西南/东南/东北/西北</param>
+vector<Station> QuadTree::FindSationsByOneDirection(unsigned pos) {
+	return GetLeaf(pos).stations;
+}
+
+/// <summary>
+/// 查找某个树叶某方向的邻居的基站
+/// </summary>
+/// <param name="node">树叶节点</param>
+/// <param name="pos">0,1,2,3,4,5,6,7分别表示西南，南，东南，东，东北，北，西北，西</param>
+vector<Station> QuadTree::FindNeighborsByOneDirenction(const TreeNode& node, unsigned pos) {
+	struct Range {
+		Point2 lb;
+		Point2 rt;
+	};
+	Point2 l = node.leftBottomBorder;
+	Point2 r = node.rightTopBorder;
+	Range ranges[8] = {
+		{Point2(l.x - 1, l.y - 1), l },
+		{Point2(l.x, l.y - 1), Point2(r.x, l.y)},
+		{Point2(r.x, l.y - 1), Point2(r.x + 1, l.y)},
+		{Point2(r.x, l.y), Point2(r.x + 1, r.y)},
+		{r, Point2(r.x + 1, r.y + 1)},
+		{Point2(l.x, r.y), Point2(r.x, r.y + 1)},
+		{Point2(l.x - 1, r.y), Point2(l.x, r.y + 1)},
+		{Point2(l.x - 1, l.y), Point2(l.x, r.y)}
+	};
+
+	vector<Station> ret(Find(ranges[pos].lb, ranges[pos].rt));
+	vector<Station> retFinal;
+	//筛掉不符合的
+	std::copy_if(ret.begin(), ret.end(), std::back_inserter(retFinal), [=](Station station){
+		switch (pos)
+		{
+		case 0:
+			return station.coordinate.x < l.x && station.coordinate.y < l.y;
+		case 1:
+			return station.coordinate.y < l.y;
+		case 2:
+			return station.coordinate.y < l.y&& station.coordinate.x > r.x;
+		case 3:
+			return station.coordinate.x > r.x;
+		case 4:
+			return station.coordinate.y > r.y&& station.coordinate.x > r.x;
+		case 5:
+			return station.coordinate.y > r.y;
+		case 6:
+			return station.coordinate.y > r.y&& station.coordinate.x < l.x;
+		case 7:
+			return station.coordinate.x < l.x;
+		default:
+			throw "pos 为 0-7";
+		}
+	});
+	return retFinal;
+}
